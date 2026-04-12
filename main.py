@@ -5,7 +5,7 @@ from platform import system
 from dotenv import load_dotenv
 
 from core.agent import Agent
-
+from core.utill.func import ClapDetection
 def main():
     load_dotenv()
     
@@ -52,11 +52,12 @@ def main():
     """
     
     # Reload config to apply the updated system_prompt
+
     agent.load_system_prompt(system_prompt)
     agent.load_config()
 
-    # Kick off the Agentic LLM Engine Loop!
-    agent.run(max_iters=50)
+    agent.run(max_iters=50,input_mode="voice")
 
 if __name__ == "__main__":
+    ClapDetection(verbose=True)
     main()

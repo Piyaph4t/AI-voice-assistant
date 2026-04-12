@@ -1,25 +1,20 @@
 import os
 import sys
-from json import tool
 from pathlib import Path
 import importlib
 import importlib.util
 import inspect
+import builtins
 
-from collections.abc import Callable
-from sys import modules
-from traceback import print_tb
 from typing import List, Dict, Tuple, Any
-from urllib import error
-from urllib.parse import uses_relative
 
 from google import genai
-from google.auth import api_key
 from google.genai import types
 
-from core.memory import Memory
 import skills
 
+from .speech_to_text import listen_and_transcribe
+from .memory import Memory
 
 class Agent:
 
@@ -79,16 +74,18 @@ class Agent:
         )
 
 
-    def run(self, max_iters:int =10, stop_command : str = "exit",wake_word : str = "Hey, Jarvis"):
+    def run(self, max_iters:int =10, stop_command : str = "exit",wake_word : str = "Hey, Jarvis", input_mode : str = "chat"):
         print("Agent ready. Type 'exit' to quit.")
         self.memory.add(role="user",text=wake_word)
+
+        input_mode_func = builtins.input if input_mode == "chat" else listen_and_transcribe
         while True:
             try:
-                prompt = input("You: ").strip()
+                prompt = input_mode_func()
             except EOFError:
                 break
             
-            if prompt == stop_command:
+            if prompt.lower() == stop_command:
                 break
             if not prompt: continue
             
